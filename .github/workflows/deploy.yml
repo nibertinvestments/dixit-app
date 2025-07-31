@@ -49,13 +49,24 @@ jobs:
           version: 'latest'    # or pin to e.g. 'v1.28.0'
 
       - name: Update kubeconfig
+        env:
+          AWS_REGION:        ${{ secrets.AWS_REGION }}
+          EKS_CLUSTER_NAME:  ${{ secrets.EKS_CLUSTER_NAME }}
         run: |
           aws eks update-kubeconfig \
-              --region ${{ secrets.AWS_REGION }} \
-              --name   ${{ secrets.EKS_CLUSTER_NAME }}
-
+            --region ${AWS_REGION} \
+            --name   ${EKS_CLUSTER_NAME}
+  
       - name: Deploy to EKS
+        env:
+          IMAGE_URI: ${{ steps.build.outputs.IMAGE_URI }}
         run: |
-          sed -i "s|REPLACE_WITH_IMAGE_URI|$IMAGE_URI|g" k8s/deployment.yaml
-          kubectl apply -f k8s/
-          kubectl rollout status deployment/dixit-test-app --namespace default
+          # substitute the built image URI into your Deployment
+          sed -i "s|REPLACE_WITH_IMAGE_URI|${IMAGE_URI}|g" k8s/deployment.yaml
+
+          # apply without client-side validation (avoids the openapi fetch error)
+          kubectl apply -f k8s/ --validate=false
+
+          # wait for the rollout to finish
+          kubectl rollout status deployment/dixit-test-app \
+            --namespace default
