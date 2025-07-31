@@ -57,16 +57,14 @@ jobs:
             --region ${AWS_REGION} \
             --name   ${EKS_CLUSTER_NAME}
   
-      - name: Deploy to EKS
-        env:
-          IMAGE_URI: ${{ steps.build.outputs.IMAGE_URI }}
+      - name: Verify kubeconfig & manifest
         run: |
-          # substitute the built image URI into your Deployment
-          sed -i "s|REPLACE_WITH_IMAGE_URI|${IMAGE_URI}|g" k8s/deployment.yaml
+          # 1. Check that kubectl is pointing at the right context
+          kubectl config current-context
 
-          # apply without client-side validation (avoids the openapi fetch error)
-          kubectl apply -f k8s/ --validate=false
+          # 2. Confirm you can reach the API server
+          kubectl cluster-info
 
-          # wait for the rollout to finish
-          kubectl rollout status deployment/dixit-test-app \
-            --namespace default
+          # 3. Dry-run your Deployment and Service YAML to validate syntax & schema
+          kubectl apply -f k8s/deployment.yaml --dry-run=client --validate=true
+          kubectl apply -f k8s/service.yaml    --dry-run=client --validate=true
