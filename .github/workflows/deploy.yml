@@ -14,7 +14,7 @@ jobs:
           aws-region:     ${{ secrets.AWS_REGION }}
 
       # Step 2: echo the region (now that AWS_REGION is in env)
-      - name: Debug: print AWS region
+      - name: print AWS region
         run: echo "Running deployment in region $AWS_REGION"
 
       - name: Log in to ECR
