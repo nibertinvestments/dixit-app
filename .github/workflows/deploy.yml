@@ -1,5 +1,9 @@
 name: Build & Deploy → EKS
 
+permissions:
+  id-token: write     # ← allows aws-actions/configure-aws-credentials to fetch the JWT :contentReference[oaicite:0]{index=0}
+  contents: read      # ← lets you check out your code
+
 on:
   push:
     branches: [ main ]
