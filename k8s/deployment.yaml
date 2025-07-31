@@ -1,19 +1,19 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: simple-js-app
+  name: dixit-test-app
 spec:
   replicas: 2
   selector:
     matchLabels:
-      app: simple-js-app
+      app: dixit-test-app
   template:
     metadata:
       labels:
-        app: simple-js-app
+        app: dixit-test-app
     spec:
       containers:
-      - name: simple-js-app
+      - name: dixit-test-app
         image: REPLACE_WITH_IMAGE_URI
         ports:
         - containerPort: 3000
