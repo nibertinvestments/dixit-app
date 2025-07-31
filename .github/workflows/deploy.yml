@@ -99,7 +99,7 @@ jobs:
       - name: Get LoadBalancer URL
         id: get_lb
         run: |
-          LB=$(kubectl get svc simple-js-app-svc -n default \
+          LB=$(kubectl get svc dixit-test-app-svc -n default \
             -o jsonpath='{.status.loadBalancer.ingress[0].hostname}')
           echo "APP_URL=http://${LB}" >> $GITHUB_ENV
 
