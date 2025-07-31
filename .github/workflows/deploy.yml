@@ -81,5 +81,5 @@ jobs:
         run: |
           sed -i "s|REPLACE_WITH_IMAGE_URI|$IMAGE_URI|g" k8s/deployment.yaml
           kubectl apply -f k8s/
-          kubectl rollout status deployment/simple-js-app --namespace default
+          kubectl rollout status deployment/dixit-test-app --namespace default
           
