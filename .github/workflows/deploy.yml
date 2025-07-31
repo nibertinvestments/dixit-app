@@ -43,11 +43,16 @@ jobs:
           role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME }}
           aws-region:     ${{ secrets.AWS_REGION }}
 
+      - name: Install kubectl
+        run: |
+          curl -LO "https://dl.k8s.io/release/$(curl -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+          chmod +x kubectl
+          sudo mv kubectl /usr/local/bin/
+
       - name: Update kubeconfig
-        uses: aws-actions/eks-kubeconfig@v1
-        with:
-          cluster-name: ${{ secrets.EKS_CLUSTER_NAME }}
-          region:       ${{ secrets.AWS_REGION }}
+        run: aws eks update-kubeconfig \
+              --region ${{ secrets.AWS_REGION }} \
+              --name   ${{ secrets.EKS_CLUSTER_NAME }}  :contentReference[oaicite:0]{index=0}
 
       - name: Deploy to EKS
         run: |
