@@ -74,7 +74,7 @@ jobs:
       - name: Update kubeconfig
         run: aws eks update-kubeconfig \
               --region ${{ secrets.AWS_REGION }} \
-              --name   ${{ secrets.EKS_CLUSTER_NAME }}  :contentReference[oaicite:0]{index=0}
+              --name   ${{ secrets.EKS_CLUSTER_NAME }}
 
       - name: Deploy to EKS
         run: |
