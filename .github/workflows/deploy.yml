@@ -82,4 +82,40 @@ jobs:
           sed -i "s|REPLACE_WITH_IMAGE_URI|$IMAGE_URI|g" k8s/deployment.yaml
           kubectl apply -f k8s/
           kubectl rollout status deployment/dixit-test-app --namespace default
-          
+  
+
+  load_test:
+    needs: deploy
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure AWS via OIDC
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME }}
+          aws-region:     ${{ secrets.AWS_REGION }}
+
+      - name: Install kubectl
+        run: |
+          curl -LO "https://dl.k8s.io/release/$(curl -s https://dl.k8s.io/release/stable.txt | tr -d '\r')/bin/linux/amd64/kubectl"
+          chmod +x kubectl
+          sudo mv kubectl /usr/local/bin/
+
+      - name: Get LoadBalancer URL
+        id: get_lb
+        run: |
+          LB=$(kubectl get svc simple-js-app-svc -n default \
+            -o jsonpath='{.status.loadBalancer.ingress[0].hostname}')
+          echo "APP_URL=http://${LB}" >> $GITHUB_ENV
+
+      - name: Install k6
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y gnupg software-properties-common
+          curl -s https://dl.k6.io/key.gpg | sudo apt-key add -
+          echo "deb https://dl.k6.io/deb stable main" | sudo tee /etc/apt/sources.list.d/k6.list
+          sudo apt-get update && sudo apt-get install -y k6
+
+      - name: Run k6 load test
+        run: k6 run k6/test.js     # __ENV.APP_URL is now set from the LB above
