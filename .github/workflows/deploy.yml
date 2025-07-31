@@ -44,9 +44,19 @@ jobs:
           aws-region:     ${{ secrets.AWS_REGION }}
 
       - name: Install kubectl
-        uses: azure/setup-kubectl@v3
-        with:
-          version: 'latest'    # or pin to e.g. 'v1.28.0'
+        run: |
+          # Download the latest stable kubectl binary for Linux AMD64
+          # Replace 'stable.txt' with a specific version like 'v1.28.0' if needed
+          curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+  
+          # Make the kubectl binary executable
+          chmod +x ./kubectl
+  
+          # Move the binary to a directory in your PATH (e.g., /usr/local/bin)
+          sudo mv ./kubectl /usr/local/bin/kubectl
+  
+          # Verify the installation (optional but recommended)
+          kubectl version --client
 
       - name: Update kubeconfig
         env:
