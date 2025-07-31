@@ -1,12 +1,3 @@
-name: Build & Deploy → EKS
-
-on:
-  push:
-    branches: [ main ]
-
-env:
-  IMAGE_URI: ${{ secrets.ECR_REGISTRY }}:${{ github.sha }}
-
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -15,13 +6,16 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      # Step 1: configure AWS via OIDC
       - name: Configure AWS via OIDC
         uses: aws-actions/configure-aws-credentials@v2
-        run: |
-          echo "Running deployment in region $AWS_REGION"
         with:
           role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME }}
           aws-region:     ${{ secrets.AWS_REGION }}
+
+      # Step 2: echo the region (now that AWS_REGION is in env)
+      - name: Debug: print AWS region
+        run: echo "Running deployment in region $AWS_REGION"
 
       - name: Log in to ECR
         uses: aws-actions/amazon-ecr-login@v1
