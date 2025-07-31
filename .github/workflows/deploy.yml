@@ -96,6 +96,12 @@ jobs:
           role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME }}
           aws-region:     ${{ secrets.AWS_REGION }}
 
+      - name: Update kubeconfig
+        run: |
+          aws eks update-kubeconfig \
+              --region ${{ secrets.AWS_REGION }} \
+              --name   ${{ secrets.EKS_CLUSTER_NAME }}
+
       - name: Get LoadBalancer URL
         id: get_lb
         run: |
