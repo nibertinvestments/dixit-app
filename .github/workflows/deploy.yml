@@ -34,7 +34,6 @@ jobs:
   deploy:
     needs: build
     runs-on: ubuntu-latest
-
     steps:
       - uses: actions/checkout@v4
 
@@ -44,59 +43,19 @@ jobs:
           role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME }}
           aws-region:     ${{ secrets.AWS_REGION }}
 
-      # --- Install AWS CLI if not already present on the runner image ---
-      - name: Install AWS CLI (if needed)
-        id: install-aws-cli
-        run: |
-          if ! command -v aws &> /dev/null; then
-              echo "AWS CLI not found, installing..."
-              curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
-              unzip awscliv2.zip
-              sudo ./aws/install --bin-dir /usr/local/bin --install-dir /usr/local/aws-cli --update
-              rm awscliv2.zip # Clean up
-              rm -rf aws      # Clean up
-              echo "AWS CLI installed."
-          else
-              echo "AWS CLI already installed."
-          fi
-          aws --version # Verify installation
-        # You can add 'continue-on-error: true' if you want the workflow to proceed
-        # even if CLI installation fails for some reason (e.g., already installed)
-
       - name: Install kubectl
         run: |
-          KUBECTL_VERSION="v1.28.0" # Pin to a specific version for stability
-          curl -LO "https://dl.k8s.io/release/${KUBECTL_VERSION}/bin/linux/amd64/kubectl"
-          chmod +x ./kubectl
-          sudo mv ./kubectl /usr/local/bin/kubectl
-          kubectl version --client # Verify installation
+          curl -LO "https://dl.k8s.io/release/$(curl -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+          chmod +x kubectl
+          sudo mv kubectl /usr/local/bin/
 
       - name: Update kubeconfig
-        env:
-          AWS_REGION:        ${{ secrets.AWS_REGION }}
-          EKS_CLUSTER_NAME:  ${{ secrets.EKS_CLUSTER_NAME }}
+        run: aws eks update-kubeconfig \
+              --region ${{ secrets.AWS_REGION }} \
+              --name   ${{ secrets.EKS_CLUSTER_NAME }}  :contentReference[oaicite:0]{index=0}
+
+      - name: Deploy to EKS
         run: |
-          aws eks update-kubeconfig \
-            --region ${AWS_REGION} \
-            --name   ${EKS_CLUSTER_NAME}
-          # If you face issues here, try adding --kubeconfig=$HOME/.kube/config
-          # or ensuring the ~/.kube directory exists with 'mkdir -p ~/.kube'
-
-      - name: Verify kubeconfig & manifest
-        run: |
-          # 1. Check that kubectl is pointing at the right context
-          kubectl config current-context
-
-          # 2. Confirm you can reach the API server
-          kubectl cluster-info
-
-          # 3. Dry-run your Deployment and Service YAML to validate syntax & schema
-          kubectl apply -f k8s/deployment.yaml --dry-run=client --validate=true
-          kubectl apply -f k8s/service.yaml    --dry-run=client --validate=true
-
-      - name: Deploy application to EKS
-        run: |
-          kubectl apply -f k8s/deployment.yaml
-          kubectl apply -f k8s/service.yaml
-          # Optional: Wait for the deployment to roll out
-          # kubectl rollout status deployment/your-deployment-name --timeout=5m
+          sed -i "s|REPLACE_WITH_IMAGE_URI|$IMAGE_URI|g" k8s/deployment.yaml
+          kubectl apply -f k8s/
+          kubectl rollout status deployment/simple-js-app --namespace default
