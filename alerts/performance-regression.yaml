@@ -1,0 +1,32 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: performance-regression
+  namespace: monitoring
+  labels:
+    release: stable
+spec:
+  groups:
+  - name: performance.rules
+    rules:
+    - alert: HighRequestLatency
+      expr: histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket{job="dixit-test-app"}[5m])) by (le))
+            > 0.5
+      for: 2m
+      labels:
+        severity: critical
+      annotations:
+        summary: "95th percentile request latency is > 500ms"
+        description: |
+          The 95th percentile of http_request_duration_seconds for job "dixit-test-app"
+          over the last 5m is above 0.5s.
+
+    - alert: RequestErrors
+      expr: sum(rate(http_requests_total{job="dixit-test-app",status=~"5.."}[5m])) > 0
+      for: 1m
+      labels:
+        severity: warning
+      annotations:
+        summary: "5xx error rate > 0"
+        description: |
+          There have been {{ $value }} server errors in the last 5 minutes.
