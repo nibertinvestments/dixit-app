@@ -1,0 +1,70 @@
+version: '3.8'
+
+services:
+  app:
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=development
+      - PORT=3000
+      - APP_NAME=Dixit App (Docker)
+      - APP_VERSION=1.0.0
+    volumes:
+      - ./src:/usr/src/app/src:ro
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # Optional: Add a development service with nodemon
+  app-dev:
+    build: 
+      context: .
+      dockerfile: Dockerfile.dev
+    ports:
+      - "3001:3000"
+    environment:
+      - NODE_ENV=development
+      - PORT=3000
+      - APP_NAME=Dixit App (Dev)
+      - APP_VERSION=1.0.0-dev
+    volumes:
+      - ./src:/usr/src/app/src
+      - ./package.json:/usr/src/app/package.json
+      - ./package-lock.json:/usr/src/app/package-lock.json
+    restart: unless-stopped
+    profiles:
+      - dev
+
+  # Optional: Add a Redis cache for session management or caching
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    restart: unless-stopped
+    profiles:
+      - cache
+
+  # Optional: Add a PostgreSQL database for data persistence
+  postgres:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_DB: dixit_app
+      POSTGRES_USER: dixit_user
+      POSTGRES_PASSWORD: dixit_password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    restart: unless-stopped
+    profiles:
+      - database
+
+volumes:
+  postgres_data:

@@ -1,12 +1,63 @@
 {
   "name": "dixit-test-app",
   "version": "1.0.0",
-  "description": "A simple Node.js app for EKS CI/CD demo",
+  "description": "A production-ready Node.js Express application demonstrating modern DevOps practices including CI/CD deployment on AWS EKS, automated testing, monitoring, and scalability features.",
   "main": "src/server.js",
   "scripts": {
-    "start": "node src/server.js"
+    "start": "node src/server.js",
+    "dev": "nodemon src/server.js",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage",
+    "lint": "eslint src/",
+    "lint:fix": "eslint src/ --fix",
+    "format": "prettier --write src/",
+    "format:check": "prettier --check src/",
+    "docker:build": "docker build -t dixit-app .",
+    "docker:run": "docker run -p 3000:3000 dixit-app",
+    "k6:test": "k6 run k6/test.js",
+    "k6:enhanced": "k6 run k6/enhanced-test.js",
+    "k6:slow": "k6 run k6/slow-test.js"
+  },
+  "keywords": [
+    "nodejs",
+    "express",
+    "kubernetes",
+    "aws",
+    "eks",
+    "devops",
+    "ci-cd",
+    "docker",
+    "monitoring",
+    "performance"
+  ],
+  "author": "Nibert Investments Team",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/nibertinvestments/dixit-app.git"
+  },
+  "bugs": {
+    "url": "https://github.com/nibertinvestments/dixit-app/issues"
+  },
+  "homepage": "https://github.com/nibertinvestments/dixit-app#readme",
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=8.0.0"
   },
   "dependencies": {
-    "express": "^4.18.2"
+    "express": "^4.21.2",
+    "helmet": "^8.0.0",
+    "cors": "^2.8.5",
+    "compression": "^1.7.4",
+    "dotenv": "^16.4.5"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.9",
+    "eslint": "^9.17.0",
+    "prettier": "^3.4.2",
+    "jest": "^29.7.0",
+    "supertest": "^7.0.0",
+    "@eslint/js": "^9.17.0"
   }
 }

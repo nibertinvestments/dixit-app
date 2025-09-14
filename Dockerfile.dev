@@ -5,8 +5,8 @@ WORKDIR /usr/src/app
 # Copy package files
 COPY package*.json ./
 
-# Install only production dependencies
-RUN npm ci --only=production && npm cache clean --force
+# Install ALL dependencies (including dev dependencies for development)
+RUN npm install
 
 # Copy source code
 COPY src/ ./src/
@@ -19,12 +19,9 @@ RUN addgroup -g 1001 -S nodejs && \
 RUN chown -R nodejs:nodejs /usr/src/app
 USER nodejs
 
-ENV NODE_ENV=production
+ENV NODE_ENV=development
 ENV PORT=3000
 EXPOSE 3000
 
-# Health check using curl (available by default in node:alpine)
-HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
-  CMD curl -f http://localhost:3000/health || exit 1
-
-CMD ["npm", "start"]
+# Use nodemon for development
+CMD ["npx", "nodemon", "src/server.js"]
