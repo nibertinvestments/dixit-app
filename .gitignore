@@ -36,6 +36,7 @@ jspm_packages/
 .env
 .env.test
 .env.production
+.env.local
 
 # parcel-bundler cache (https://parceljs.org/)
 .cache
@@ -82,3 +83,17 @@ logs
 # Temporary files
 tmp/
 temp/
+
+# Build output
+dist/
+build/
+
+# Test results
+test-results/
+junit.xml
+
+# Docker volumes
+postgres_data/
+
+# ESLint cache
+.eslintcache
