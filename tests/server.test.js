@@ -72,6 +72,22 @@ describe('Dixit App', () => {
       expect(response.body).toHaveProperty('error');
       expect(response.body.error).toContain('Sleep duration cannot exceed');
     });
+
+    it('should reject invalid sleep duration', async () => {
+      const response = await request(app).get('/sleep?ms=invalid');
+      
+      expect(response.status).toBe(400);
+      expect(response.body).toHaveProperty('error');
+      expect(response.body.error).toContain('Sleep duration must be a positive number');
+    });
+
+    it('should reject negative sleep duration', async () => {
+      const response = await request(app).get('/sleep?ms=-100');
+      
+      expect(response.status).toBe(400);
+      expect(response.body).toHaveProperty('error');
+      expect(response.body.error).toContain('Sleep duration must be a positive number');
+    });
   });
 
   describe('GET /api/info', () => {
