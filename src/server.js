@@ -91,8 +91,30 @@ app.get('/health', (req, res) => {
 });
 
 app.get('/sleep', (req, res) => {
-  const ms = parseInt(req.query.ms) || 1000;
+  const msParam = req.query.ms;
+  const ms = parseInt(msParam);
   const maxSleep = 30000; // Maximum 30 seconds for safety
+
+  // If no parameter provided, use default
+  if (msParam === undefined) {
+    const defaultMs = 1000;
+    setTimeout(() => {
+      res.json({
+        message: `Slept ${defaultMs}ms`,
+        duration: defaultMs,
+        requestId: req.requestId,
+      });
+    }, defaultMs);
+    return;
+  }
+
+  // Validate that ms is a valid number
+  if (isNaN(ms) || ms < 0) {
+    return res.status(400).json({
+      error: 'Sleep duration must be a positive number',
+      requestId: req.requestId,
+    });
+  }
 
   if (ms > maxSleep) {
     return res.status(400).json({
