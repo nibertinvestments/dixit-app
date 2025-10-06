@@ -36,7 +36,7 @@ module.exports = [
     }
   },
   {
-    files: ['**/*.test.js', '**/*.spec.js'],
+    files: ['**/*.test.js', '**/*.spec.js', '**/tests/setup.js'],
     languageOptions: {
       globals: {
         describe: 'readonly',

@@ -10,7 +10,7 @@ export let options = {
   },
 };
 
-const BASE = __ENV.APP_URL;  // now dynamic!
+const BASE = __ENV.APP_URL || 'http://localhost:3000';  // now dynamic with fallback!
 
 export default function () {
   const res = http.get(`${BASE}/`);
