@@ -7,6 +7,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+- Fixed ESLint module type warning by converting eslint.config.js to CommonJS format
+- Fixed hardcoded URL in k6/slow-test.js to use dynamic APP_URL environment variable
+- Added fallback URL to k6/test.js for local testing without environment variable
+- Fixed ESLint configuration to properly recognize Jest globals in test setup files
+
+### Improved
+- Enhanced input validation for /sleep endpoint to reject invalid and negative durations
+- Improved test coverage from 87.67% to 92.3%
+- Extended linting and formatting to include tests directory for better code quality
+- Added tests for invalid input handling in /sleep endpoint
+- Formatted all test files with Prettier for consistent code style
+
+### Changed
+- Updated npm scripts to include tests directory in lint and format commands
+- Updated ESLint config to use CommonJS (require/module.exports) for consistency
+
 ### Added
 - Comprehensive documentation suite
 - Industry-standard README.md with badges and detailed sections
@@ -16,7 +33,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Detailed API documentation
 - Architecture diagrams and explanations
 
-### Changed
+### Changed (Previous)
 - Enhanced README.md with comprehensive project information
 - Improved project structure documentation
 
